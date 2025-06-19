@@ -97,28 +97,28 @@ resource "aws_instance" "worker_node" {
 }
 
 module "start_ec2" {
-    source = "${path.module}/module"
+    source = "./module"
 
     lambda_function_name           = "start_ec2"
     lambda_handler                 = "start.lambda_handler"
     lambda_source_file             = "${path.module}/python/start.py"
     policy_template_path           = "${path.module}/policies/lambda_policy.json"
     cloudwatch_schedule_expression = "cron(30 2 * * ? *)"    # Every day at 2:30 AM UTC or 8:00 AM IST
-    cloudwatch_rule_name           = "start at morning"
+    cloudwatch_rule_name           = "start-at-morning"
     cloudwatch_rule_description    = "Trigger Lambda every morning to start EC2 instances"
 
 
 }
 
 module "stop_ec2" {
-    source = "${path.module}/module"
+    source = "./module"
 
     lambda_function_name           = "stop_ec2"
     lambda_handler                 = "stop.lambda_handler"
     lambda_source_file             = "${path.module}/python/stop.py"
     policy_template_path           = "${path.module}/policies/lambda_policy.json"
     cloudwatch_schedule_expression = "cron(30 14 * * ? *)"    # Every day at 2:30 PM UTC or 8:00 PM IST
-    cloudwatch_rule_name           = "stop at evening"
+    cloudwatch_rule_name           = "stop-at-evening"
     cloudwatch_rule_description    = "Trigger Lambda every evening to stop EC2 instances"
   
 }
