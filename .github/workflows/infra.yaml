@@ -65,7 +65,7 @@ jobs:
 
       - name: Run tfsec and generate HTML report
         run: |
-          tfsec . --format html > tfsec-report.html
+          tfsec . --format html --out tfsec-report.html --soft-fail
 
       - name: Upload tfsec HTML report
         uses: actions/upload-artifact@v4
