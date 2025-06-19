@@ -97,7 +97,7 @@ resource "aws_instance" "worker_node" {
 }
 
 module "start_ec2" {
-    source = "./module"
+    source = "git::https://github.com/Ajinkya-A3/Aws-Lambda-Terraform.git//module?ref=main"
 
     lambda_function_name           = "start_ec2"
     lambda_handler                 = "start.lambda_handler"
@@ -111,7 +111,7 @@ module "start_ec2" {
 }
 
 module "stop_ec2" {
-    source = "./module"
+    source = "git::https://github.com/Ajinkya-A3/Aws-Lambda-Terraform.git//module?ref=main"
 
     lambda_function_name           = "stop_ec2"
     lambda_handler                 = "stop.lambda_handler"
