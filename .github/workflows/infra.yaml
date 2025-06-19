@@ -85,8 +85,14 @@ jobs:
         with:
           api-key: ${{ secrets.INFRACOST_API_KEY }}
 
-      - name: Generate Infracost HTML with usage file
+      - name: Generate Infracost reports with usage file
         run: |
+          infracost breakdown \
+            --path=Infrastructure/ \
+            --usage-file=infracost-usage.yml \
+            --format=json \
+            --out-file=infracost.json
+
           infracost breakdown \
             --path=Infrastructure/ \
             --usage-file=infracost-usage.yml \
