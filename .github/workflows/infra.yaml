@@ -88,7 +88,7 @@ jobs:
       - name: Generate Infracost HTML with usage file
         run: |
           infracost breakdown \
-            --path=. \
+            --path=Infrastructure/ \
             --usage-file=infracost-usage.yml \
             --format=html \
             --out-file=infracost.html
