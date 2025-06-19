@@ -1,0 +1,3 @@
+resource_type_defaults:
+  aws_instance:
+    monthly_hrs: 360  # 12 hours/day × 30 days
