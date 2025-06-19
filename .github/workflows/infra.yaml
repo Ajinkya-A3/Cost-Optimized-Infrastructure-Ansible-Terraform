@@ -68,6 +68,12 @@ jobs:
           # Path to SARIF file relative to the root of the repository
           sarif_file: tfsec.sarif
 
+      - name: Upload tfsec SARIF as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: tfsec-sarif
+          path: tfsec.sarif
+
 
   infracost:
     runs-on: ubuntu-latest
