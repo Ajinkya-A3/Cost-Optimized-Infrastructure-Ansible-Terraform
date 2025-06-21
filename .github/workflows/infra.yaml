@@ -1,123 +1,119 @@
-# This workflow uses actions that are not certified by GitHub.
-# They are provided by a third-party and are governed by
-# separate terms of service, privacy policy, and support
-# documentation.
 
-name: terraform workflow
 
-on:
-  push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
-  # schedule:
-  #   - cron: '43 9 * * 3'
+# name: terraform workflow
 
-jobs:
-  tflint:
-    runs-on: ubuntu-latest
+# on:
+#   push:
+#     branches: [ "main" ]
+#   pull_request:
+#     branches: [ "main" ]
+  
 
-    steps:
-    - uses: actions/checkout@v4
-      name: Checkout source code
+# jobs:
+#   tflint:
+#     runs-on: ubuntu-latest
 
-    - uses: actions/cache@v4
-      name: Cache plugin dir
-      with:
-        path: ~/.tflint.d/plugins
-        key: ubuntu-tflint-${{ hashFiles('.tflint.hcl') }}
+#     steps:
+#     - uses: actions/checkout@v4
+#       name: Checkout source code
 
-    - uses: terraform-linters/setup-tflint@v4
-      name: Setup TFLint
-      with:
-        tflint_version: v0.52.0
+#     - uses: actions/cache@v4
+#       name: Cache plugin dir
+#       with:
+#         path: ~/.tflint.d/plugins
+#         key: ubuntu-tflint-${{ hashFiles('.tflint.hcl') }}
 
-    - name: Show TFLint version
-      run: tflint --version
+#     - uses: terraform-linters/setup-tflint@v4
+#       name: Setup TFLint
+#       with:
+#         tflint_version: v0.52.0
 
-    - name: Init TFLint plugins
-      run: tflint --init
-      env:
-        GITHUB_TOKEN: ${{ github.token }}
+#     - name: Show TFLint version
+#       run: tflint --version
 
-    - name: Run TFLint
-      run: tflint -f compact
+#     - name: Init TFLint plugins
+#       run: tflint --init
+#       env:
+#         GITHUB_TOKEN: ${{ github.token }}
+
+#     - name: Run TFLint
+#       run: tflint -f compact
 
 
 
-  tfsec:
-    needs: tflint
+#   tfsec:
+#     needs: tflint
     
-    runs-on: ubuntu-latest
+#     runs-on: ubuntu-latest
     
-    permissions:
-      actions: read
-      contents: read
-      security-events: write
+#     permissions:
+#       actions: read
+#       contents: read
+#       security-events: write
 
-    steps:
-      - name: Clone repo
-        uses: actions/checkout@v4
+#     steps:
+#       - name: Clone repo
+#         uses: actions/checkout@v4
 
-      - name: Install tfsec
-        run: |
-          curl -s https://raw.githubusercontent.com/aquasecurity/tfsec/master/scripts/install_linux.sh | bash
+#       - name: Install tfsec
+#         run: |
+#           curl -s https://raw.githubusercontent.com/aquasecurity/tfsec/master/scripts/install_linux.sh | bash
 
-      - name: Run tfsec and generate HTML report
-        run: |
-          tfsec . --format html --out tfsec-report.html --soft-fail
+#       - name: Run tfsec and generate HTML report
+#         run: |
+#           tfsec . --format html --out tfsec-report.html --soft-fail
 
-      - name: Upload tfsec HTML report
-        uses: actions/upload-artifact@v4
-        with:
-          name: tfsec-html-report
-          path: tfsec-report.html
+#       - name: Upload tfsec HTML report
+#         uses: actions/upload-artifact@v4
+#         with:
+#           name: tfsec-html-report
+#           path: tfsec-report.html
 
 
 
-  infracost:
-    needs: tfsec
-    runs-on: ubuntu-latest
+#   infracost:
+#     needs: tfsec
+#     runs-on: ubuntu-latest
 
-    permissions:
-      contents: read
-      pull-requests: write
+#     permissions:
+#       contents: read
+#       pull-requests: write
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+#     steps:
+#       - name: Checkout code
+#         uses: actions/checkout@v4
 
-      - name: Setup Infracost
-        uses: infracost/actions/setup@v3
-        with:
-          api-key: ${{ secrets.INFRACOST_API_KEY }}
+#       - name: Setup Infracost
+#         uses: infracost/actions/setup@v3
+#         with:
+#           api-key: ${{ secrets.INFRACOST_API_KEY }}
 
-      - name: Generate Infracost reports with usage file
-        run: |
-          infracost breakdown \
-            --path=Infrastructure/ \
-            --usage-file=infracost-usage.yml \
-            --format=json \
-            --out-file=infracost.json
+#       - name: Generate Infracost reports with usage file
+#         run: |
+#           infracost breakdown \
+#             --path=Infrastructure/ \
+#             --usage-file=infracost-usage.yml \
+#             --format=json \
+#             --out-file=infracost.json
 
-          infracost breakdown \
-            --path=Infrastructure/ \
-            --usage-file=infracost-usage.yml \
-            --format=html \
-            --out-file=infracost.html
+#           infracost breakdown \
+#             --path=Infrastructure/ \
+#             --usage-file=infracost-usage.yml \
+#             --format=html \
+#             --out-file=infracost.html
 
-      - name: Upload Infracost HTML
-        uses: actions/upload-artifact@v4
-        with:
-          name: infracost-html
-          path: infracost.html
+#       - name: Upload Infracost HTML
+#         uses: actions/upload-artifact@v4
+#         with:
+#           name: infracost-html
+#           path: infracost.html
 
-      - name: (Optional) Comment on PR
-        if: github.event_name == 'pull_request'
-        run: |
-          infracost comment github \
-            --path=infracost.json \
-            --repo=$GITHUB_REPOSITORY \
-            --github-token=${{ secrets.GITHUB_TOKEN }} \
-            --pull-request=${{ github.event.pull_request.number }} \
-            --behavior=update
+#       - name: (Optional) Comment on PR
+#         if: github.event_name == 'pull_request'
+#         run: |
+#           infracost comment github \
+#             --path=infracost.json \
+#             --repo=$GITHUB_REPOSITORY \
+#             --github-token=${{ secrets.GITHUB_TOKEN }} \
+#             --pull-request=${{ github.event.pull_request.number }} \
+#             --behavior=update
